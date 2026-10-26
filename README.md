@@ -2,16 +2,7 @@
 
 ## Project Summary
 
-In this project you will build and explain a small music recommender system.
-
-Your goal is to:
-
-- Represent songs and a user "taste profile" as data
-- Design a scoring rule that turns that data into recommendations
-- Evaluate what your system gets right and wrong
-- Reflect on how this mirrors real world AI recommenders
-
-Replace this paragraph with your own summary of what your version does.
+This project is a small content-based music recommender written in Python. It loads a catalog of songs from a CSV file, compares each song to a user's taste profile (favorite genre, favorite mood, and target energy), and gives every song a score with the reasons behind it. It then ranks the songs and prints the top recommendations in the terminal. I built it to learn how recommenders turn data into predictions and to look at where bias can show up in a simple system.
 
 ---
 
@@ -46,7 +37,30 @@ Real-world platforms like Spotify and YouTube predict what you'll enjoy using tw
 - A song from another genre could be ignored even if its mood and energy fit the user well.
 - The small dataset limits the variety of recommendations.
 
-You can include a simple diagram or bullet list if helpful.
+### Data
+The catalog in `data/songs.csv` has 18 songs across 15 genres (pop, lofi, rock, ambient, jazz, synthwave, indie pop, country, hip hop, classical, drum and bass, reggaeton, r&b, metal, and afrobeat). Each song has `genre`, `mood`, `energy`, `tempo_bpm`, `valence`, `danceability`, and `acousticness`. I added 8 songs to the starter's 10 so the catalog covers more genres and moods. Only `genre`, `mood`, and `energy` are used in scoring. The other columns are stored for possible future use.
+
+### Example user profile
+```python
+user_prefs = {"favorite_genre": "pop", "favorite_mood": "happy", "target_energy": 0.8}
+```
+This profile can separate "intense rock" from "chill lofi" because the two groups differ in genre, mood, and energy. It is weaker at telling apart songs that are close to each other, such as Storm Runner (rock) and Gym Hero (pop), where genre is the only real difference.
+
+### Algorithm Recipe
+For every song:
+1. Genre matches the user's favorite genre: **+2.0**
+2. Mood matches the user's favorite mood: **+1.0**
+3. Energy closeness: **`1 - abs(song_energy - target_energy)`**, which gives up to **+1.0**. A song exactly at the target gets 1.0, and the farther away it is, the less it gets.
+4. Add the points together (maximum **4.0**) and save a reason for each part, such as "genre match (+2.0)".
+
+### Data flow
+**Input** (user preferences) → **Process** (loop over every song in the CSV and call `score_song`) → **Output** (sort by score, return the top K with their reasons)
+
+### Expected biases
+- Genre match is worth 2 points and mood only 1, so a mood-and-energy match can never beat a genre-only match. For example, with a pop/happy profile, Gym Hero (pop, intense) is expected to rank above Rooftop Lights (indie pop, happy) because "indie pop" gets no genre credit. I plan to test lower genre weight and partial genre credit in Phase 4.
+- Genre and mood must match exactly, so "chill" and "relaxed" count as completely different moods, and so do "pop" and "indie pop."
+- Each user can only list one genre and one mood, so someone with mixed tastes can't be represented.
+- With only 18 songs, most genres have one song each, so many profiles will have only one possible genre match.
 
 ---
 
@@ -60,6 +74,7 @@ You can include a simple diagram or bullet list if helpful.
    python -m venv .venv
    source .venv/bin/activate      # Mac or Linux
    .venv\Scripts\activate         # Windows
+   ```
 
 2. Install dependencies
 
@@ -136,6 +151,3 @@ Write 1 to 2 paragraphs here about what you learned:
 
 - about how recommenders turn data into predictions
 - about where bias or unfairness could show up in systems like this
-
-
-
