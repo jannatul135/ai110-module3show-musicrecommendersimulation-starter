@@ -17,15 +17,34 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world platforms like Spotify and YouTube predict what you'll enjoy using two kinds of signals. Collaborative filtering uses user behavior (likes, skips, playlists, listening history) to find songs that people with similar habits enjoyed. Content-based filtering uses the song's own features (genre, mood, energy, tempo) to find songs that resemble what you already like. My version is content-based: it compares one user's taste profile to each song's features and prioritizes genre and mood matches, then checks how close the song's energy is to the user's target.
 
-Some prompts to answer:
+### What features does each `Song` use in your system?
+- `genre`
+- `mood`
+- `energy` (0.0 to 1.0)
+- `tempo_bpm` (stored in the data but not used in scoring)
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+### What information does your `UserProfile` store?
+- `favorite_genre`
+- `favorite_mood`
+- `target_energy`
+
+### How does your `Recommender` compute a score for each song?
+- Genre match: +2.0 points
+- Mood match: +1.0 point
+- Energy: `1 - abs(song_energy - target_energy)`, so songs closer to the user's target get more points
+- Each song gets a total score plus a list of reasons, such as "genre match (+2.0)"
+
+### How do you choose which songs to recommend?
+- The system scores every song in the dataset.
+- It sorts the songs from highest score to lowest score.
+- It returns the top K songs as the recommendations.
+
+### What possible biases or limitations could the system have?
+- Genre is worth the most points, so it may dominate the results.
+- A song from another genre could be ignored even if its mood and energy fit the user well.
+- The small dataset limits the variety of recommendations.
 
 You can include a simple diagram or bullet list if helpful.
 
