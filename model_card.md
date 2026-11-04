@@ -101,6 +101,8 @@ Genre and mood must match word for word, so similar labels like "chill" and "rel
 
 Most genres and moods have only one song, so many users can match at most one song on genre. Users who like popular, well-covered genres like pop and lofi get more choices than users who like a genre with a single song.
 
+The system lets genre and mood outweigh energy, which can give a user the opposite of what they asked for. When I tested a classical/melancholic profile with a target energy of 0.95, Rainfall Requiem (energy 0.22) ranked first with 3.27 points, because genre and mood together are worth 3.0 points and its energy gap only cost 0.73. Four high-energy songs that matched the requested energy ranked below it. Exact-match scoring also made the “sad” mood in the pop/sad profile useless, since no song carries that label. A real recommender would need to treat energy as something that can veto a result, or at least weight it more.
+
 ---
 
 ## 7. Evaluation  
@@ -113,6 +115,236 @@ Prompts:
 - What you looked for in the recommendations  
 - What surprised you  
 - Any simple tests or comparisons you ran  
+
+**Profiles tested.** High-Energy Pop (pop, happy, 0.9), Chill Lofi (lofi, chill, 0.35), Deep Intense Rock (rock, intense, 0.92), and three edge cases: Conflicting (pop, sad, 0.9), Genre Not in File (k-pop, happy, 0.8), and Mismatched Vibe (classical, melancholic, 0.95).
+
+**What I looked for.** Whether the top results matched my intuition, whether the reasons explained each score, and whether I could trick the scoring into a bad result.
+
+**What surprised me.** Deep Intense Rock has only one rock song, so after Storm Runner the list fell apart: Gym Hero ranked second on a mood match alone, and #3 to #5 got energy points only. The classical profile was the biggest surprise. Rainfall Requiem has an energy of 0.22, but it still ranked first for a user who wanted 0.95, because genre and mood together are worth 3.0 points. The k-pop profile still returned confident-looking results even though no song could match the genre. Doubling energy and halving genre did not change any rankings, only the gaps.
+
+**Profile comparisons.**
+- **High-Energy Pop vs. Chill Lofi:** The pop profile favors loud, upbeat songs (Sunrise City, Gym Hero). Chill Lofi shifts to calm songs (Library Rain, Midnight Coding) because the target energy drops from 0.9 to 0.35 and the genre and mood both change. This makes sense, since the two profiles ask for opposite vibes.
+- **High-Energy Pop vs. Deep Intense Rock:** Both want high energy, so Gym Hero and Bassline Riot appear in both lists. Genre and mood decide the winner: Sunrise City for pop/happy, Storm Runner for rock/intense.
+- **Chill Lofi vs. Deep Intense Rock:** They share almost nothing because their energy targets are far apart (0.35 vs. 0.92). Lofi has three genre matches while rock has only one, which shows the dataset is uneven.
+- **High-Energy Pop vs. Conflicting (pop, sad):** Gym Hero and Sunrise City lead both lists. Since no song is "sad," the mood does nothing, and Sunrise City drops from 3.92 to 2.92 because it loses its mood point.
+- **High-Energy Pop vs. Genre Not in File (k-pop):** The mood is the same (happy), but with no genre match the top score falls from 3.92 to 1.98. Sunrise City is still first on mood plus energy, but the system never says it couldn't find the genre.
+- **Deep Intense Rock vs. Mismatched Vibe (classical):** Both want very high energy, and #2 to #5 are mostly the same energy-only songs. The difference is #1: Storm Runner fits the energy, but Rainfall Requiem does not, because genre and mood outweigh energy.
+
+**Outputs.** (Paste each profile's terminal output below in its own fenced code block, with the profile name above it.)
+
+### High-Energy Pop
+```
+High-Energy Pop
+========================================
+Top recommendations
+----------------------------------------
+1. Sunrise City by Neon Echo
+   Score: 3.92
+   Reasons:
+     - genre match (+2.0)
+     - mood match (+1.0)
+     - energy closeness (+0.92)
+
+2. Gym Hero by Max Pulse
+   Score: 2.97
+   Reasons:
+     - genre match (+2.0)
+     - energy closeness (+0.97)
+
+3. Rooftop Lights by Indigo Parade
+   Score: 1.86
+   Reasons:
+     - mood match (+1.0)
+     - energy closeness (+0.86)
+
+4. Storm Runner by Voltline
+   Score: 0.99
+   Reasons:
+     - energy closeness (+0.99)
+
+5. Bassline Riot by Shockwave Theory
+   Score: 0.94
+   Reasons:
+     - energy closeness (+0.94)
+```
+
+### Chill Lofi
+```
+Chill Lofi
+========================================
+Top recommendations
+----------------------------------------
+1. Library Rain by Paper Lanterns
+   Score: 4.00
+   Reasons:
+     - genre match (+2.0)
+     - mood match (+1.0)
+     - energy closeness (+1.00)
+
+2. Midnight Coding by LoRoom
+   Score: 3.93
+   Reasons:
+     - genre match (+2.0)
+     - mood match (+1.0)
+     - energy closeness (+0.93)
+
+3. Focus Flow by LoRoom
+   Score: 2.95
+   Reasons:
+     - genre match (+2.0)
+     - energy closeness (+0.95)
+
+4. Spacewalk Thoughts by Orbit Bloom
+   Score: 1.93
+   Reasons:
+     - mood match (+1.0)
+     - energy closeness (+0.93)
+
+5. Coffee Shop Stories by Slow Stereo
+   Score: 0.98
+   Reasons:
+     - energy closeness (+0.98)
+```
+
+### Deep Intense Rock
+```
+Deep Intense Rock
+========================================
+Top recommendations
+----------------------------------------
+1. Storm Runner by Voltline
+   Score: 3.99
+   Reasons:
+     - genre match (+2.0)
+     - mood match (+1.0)
+     - energy closeness (+0.99)
+
+2. Gym Hero by Max Pulse
+   Score: 1.99
+   Reasons:
+     - mood match (+1.0)
+     - energy closeness (+0.99)
+
+3. Bassline Riot by Shockwave Theory
+   Score: 0.96
+   Reasons:
+     - energy closeness (+0.96)
+
+4. Iron Cathedral by Graveheart
+   Score: 0.94
+   Reasons:
+     - energy closeness (+0.94)
+
+5. Sunrise City by Neon Echo
+   Score: 0.90
+   Reasons:
+     - energy closeness (+0.90)
+```
+
+### Conflicting (pop, sad, 0.9)
+```
+Conflicting (pop, sad, 0.9)
+========================================
+Top recommendations
+----------------------------------------
+1. Gym Hero by Max Pulse
+   Score: 2.97
+   Reasons:
+     - genre match (+2.0)
+     - energy closeness (+0.97)
+
+2. Sunrise City by Neon Echo
+   Score: 2.92
+   Reasons:
+     - genre match (+2.0)
+     - energy closeness (+0.92)
+
+3. Storm Runner by Voltline
+   Score: 0.99
+   Reasons:
+     - energy closeness (+0.99)
+
+4. Bassline Riot by Shockwave Theory
+   Score: 0.94
+   Reasons:
+     - energy closeness (+0.94)
+
+5. Iron Cathedral by Graveheart
+   Score: 0.92
+   Reasons:
+     - energy closeness (+0.92)
+```
+
+### Genre Not in File (k-pop)
+```
+Genre Not in File (k-pop)
+========================================
+Top recommendations
+----------------------------------------
+1. Sunrise City by Neon Echo
+   Score: 1.98
+   Reasons:
+     - mood match (+1.0)
+     - energy closeness (+0.98)
+
+2. Rooftop Lights by Indigo Parade
+   Score: 1.96
+   Reasons:
+     - mood match (+1.0)
+     - energy closeness (+0.96)
+
+3. Sol de Verano by Los Caminantes
+   Score: 1.00
+   Reasons:
+     - energy closeness (+1.00)
+
+4. Night Drive Loop by Neon Echo
+   Score: 0.95
+   Reasons:
+     - energy closeness (+0.95)
+
+5. Lantern Festival by Kora Sky
+   Score: 0.94
+   Reasons:
+     - energy closeness (+0.94)
+
+```
+
+### Mismatched Vibe (classical, 0.95)
+```
+
+Mismatched Vibe (classical, 0.95)
+========================================
+Top recommendations
+----------------------------------------
+1. Rainfall Requiem by Aurelia Strings
+   Score: 3.27
+   Reasons:
+     - genre match (+2.0)
+     - mood match (+1.0)
+     - energy closeness (+0.27)
+
+2. Bassline Riot by Shockwave Theory
+   Score: 0.99
+   Reasons:
+     - energy closeness (+0.99)
+
+3. Gym Hero by Max Pulse
+   Score: 0.98
+   Reasons:
+     - energy closeness (+0.98)
+
+4. Iron Cathedral by Graveheart
+   Score: 0.97
+   Reasons:
+     - energy closeness (+0.97)
+
+5. Storm Runner by Voltline
+   Score: 0.96
+   Reasons:
+     - energy closeness (+0.96)
+
+```
 
 No need for numeric metrics unless you created some.
 

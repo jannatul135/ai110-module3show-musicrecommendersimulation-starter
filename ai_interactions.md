@@ -7,6 +7,7 @@
 ## Agentic Workflow (SF8)
 
 > Document your experience using an AI agent (e.g., Cursor Agent, Claude, Copilot) to make multi-step changes autonomously.
+Claude
 
 **What task did you give the agent?**
 
