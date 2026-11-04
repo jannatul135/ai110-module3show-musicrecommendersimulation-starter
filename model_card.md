@@ -380,4 +380,10 @@ Prompts:
 
 - What you learned about recommender systems  
 - Something unexpected or interesting you discovered  
-- How this changed the way you think about music recommendation apps
+- How this changed the way you think about music recommendation apps  
+
+**What I learned about recommender systems.** A recommender is a scoring rule plus a ranking rule. My system gives each song points for genre, mood, and energy closeness, then sorts by the total. I learned that the weights are where the real decisions are made. Genre and mood together are worth 3 points and energy only 1, so those two labels end up controlling most results.
+
+**Something unexpected.** In my classical test, a quiet song with an energy of 0.22 ranked first for a user who asked for 0.95. Its genre and mood matches added up to more than the energy miss cost it. I was also surprised that halving genre and doubling energy changed no rankings, only the gaps between scores. I predicted the order would flip, and checking the numbers by hand showed I was wrong. That taught me to verify results instead of trusting a guess, whether it comes from me or from an AI.
+
+**How this changes how I think about music apps.** Three simple rules were enough to make the results feel like real recommendations, so I now see that apps like Spotify are doing something much bigger, but built on the same idea. I also notice that what gets measured decides what you get. Users with less common tastes, like my rock profile with only one rock song, would get worse results, and I'd expect that to happen in real apps too.
